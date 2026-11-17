@@ -1,0 +1,82 @@
+name: Avaliação dos assistentes de IA
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  testes-rapidos:
+    name: Testes rápidos (IA falsa)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -v
+
+  avaliacao:
+    name: Avaliação com ${{ matrix.modelo }}
+    needs: testes-rapidos
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        modelo: ["qwen2.5:1.5b", "llama3.2:1b"]
+    # O modelo principal decide se o CI passa; o outro entra só para comparação
+    continue-on-error: ${{ matrix.modelo != 'qwen2.5:1.5b' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Guardar os modelos baixados entre execuções
+        uses: actions/cache@v4
+        with:
+          path: ~/.ollama/models
+          key: ollama-${{ matrix.modelo }}
+
+      - name: Instalar e ligar o Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          sudo systemctl stop ollama || true
+          OLLAMA_MODELS="$HOME/.ollama/models" nohup ollama serve > ollama.log 2>&1 &
+          for i in $(seq 1 30); do curl -fs http://localhost:11434/api/tags >/dev/null && break; sleep 2; done
+          ollama pull "${{ matrix.modelo }}"
+          ollama list
+
+      - name: Avaliar a loja e o D&D
+        run: |
+          set +e
+          python -m motor.avaliar --assistente loja --modelo "${{ matrix.modelo }}"; loja=$?
+          python -m motor.avaliar --assistente dnd  --modelo "${{ matrix.modelo }}"; dnd=$?
+          cat relatorios/*.md >> "$GITHUB_STEP_SUMMARY"
+          echo "loja=$loja dnd=$dnd"
+          [ "$loja" -eq 0 ] && [ "$dnd" -eq 0 ]
+
+      - name: Guardar relatórios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-${{ strategy.job-index }}
+          path: relatorios/
+          if-no-files-found: ignore
+
+  comparacao:
+    name: Comparação entre modelos
+    needs: avaliacao
+    if: always() && needs.avaliacao.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          path: relatorios
+      - run: python -m motor.comparar relatorios | tee -a "$GITHUB_STEP_SUMMARY"

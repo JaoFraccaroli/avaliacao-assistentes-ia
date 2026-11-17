@@ -1,0 +1,2 @@
+# O motor usa só a biblioteca padrão do Python (3.11+). Só os testes precisam do pytest.
+pytest>=8

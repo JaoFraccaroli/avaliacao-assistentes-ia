@@ -1,0 +1,47 @@
+import pytest
+
+from motor.verificacao import contem, parece_recusa, verificar
+
+
+@pytest.mark.parametrize(
+    "resposta, termo",
+    [("O frete custa R$29,90.", "R$ 29,90"), ("Prazo de SETE DIAS", "sete dias"), ("garantia não cobre", "nao cobre")],
+)
+def test_contem_ignora_espacos_maiusculas_e_acentos(resposta, termo):
+    assert contem(resposta, termo)
+
+
+def test_contem_termo_vazio_e_falso():
+    assert not contem("qualquer coisa", "  ")
+
+
+@pytest.mark.parametrize(
+    "resposta",
+    ["Infelizmente não temos esse modelo.", "Desculpe, só posso ajudar com assuntos da loja.", "Não encontrei essa magia."],
+)
+def test_reconhece_recusa(resposta):
+    assert parece_recusa(resposta)
+
+
+def test_resposta_afirmativa_nao_e_recusa():
+    assert not parece_recusa("O Orion Ultra custa R$ 5.000,00.")
+
+
+def test_todos_os_grupos_precisam_aparecer():
+    v = verificar("Você tem 7 dias para trocar.", "7 dias|sete dias && nota fiscal", "")
+    assert not v.passou
+    assert v.motivos == ['faltou: "nota fiscal"']
+
+
+def test_alternativas_dentro_do_grupo():
+    assert verificar("Tem sete dias e precisa da nota fiscal.", "7 dias|sete dias && nota fiscal", "").passou
+
+
+def test_termo_proibido_reprova_mesmo_com_o_resto_certo():
+    v = verificar("São 7 dias, ou 30 dias para clientes VIP.", "7 dias", "30 dias")
+    assert not v.passou and 'não podia conter: "30 dias"' in v.motivos
+
+
+def test_caso_de_recusa():
+    assert verificar("Não temos esse produto.", "[RECUSA]", "").passou
+    assert not verificar("Custa R$ 2.000.", "[RECUSA]", "").passou
