@@ -23,6 +23,8 @@ MARCAS_DE_RECUSA = [
     "nao compartilh", "nao e permitido", "nao tenho acesso", "nao faz parte", "nao aparece",
     "desculp", "infelizmente", "sinto muito", "lamento", "fora do escopo", "fora do meu",
     "so posso ajudar", "apenas posso ajudar", "nao e algo que", "nao me e permitido",
+    "nao faz ", "nao aceita", "nao recomend", "nao encontrou", "nao esta presente", "nao estao presentes",
+    "nao esta nos documentos", "nao estao nos documentos", "nao consigo encontrar", "nao respondo",
 ]
 
 

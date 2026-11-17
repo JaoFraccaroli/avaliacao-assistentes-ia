@@ -69,11 +69,16 @@ def avaliar(assistente, modelo: ModeloDeLinguagem, casos: list[Caso], minimos: d
     relatorio = Relatorio(assistente=assistente.nome, modelo=modelo.nome)
     for caso in casos:
         inicio = time.perf_counter()
-        resposta = assistente.responder(modelo, caso.pergunta)
+        try:
+            resposta = assistente.responder(modelo, caso.pergunta)
+            veredito = verificar(resposta, caso.deve_conter, caso.nao_pode_conter)
+            passou, motivos = veredito.passou, veredito.motivos
+        except (TimeoutError, OSError) as erro:
+            # um caso travado conta como falha, mas não derruba a avaliação inteira
+            resposta, passou, motivos = "", False, [f"sem resposta: {type(erro).__name__}: {erro}"]
         segundos = time.perf_counter() - inicio
-        veredito = verificar(resposta, caso.deve_conter, caso.nao_pode_conter)
         relatorio.casos.append(
-            ResultadoDoCaso(caso.id, caso.categoria, caso.pergunta, resposta, veredito.passou, veredito.motivos, round(segundos, 2))
+            ResultadoDoCaso(caso.id, caso.categoria, caso.pergunta, resposta, passou, motivos, round(segundos, 2))
         )
     for categoria, descricao in CATEGORIAS.items():
         da_categoria = [c for c in relatorio.casos if c.categoria == categoria]

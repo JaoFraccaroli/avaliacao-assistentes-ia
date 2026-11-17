@@ -21,7 +21,7 @@ class ModeloDeLinguagem(Protocol):
 class ClienteOllama:
     """Conversa com o Ollama pela API HTTP local (padrão: http://localhost:11434)."""
 
-    def __init__(self, nome: str, url: str | None = None, timeout: float = 180.0):
+    def __init__(self, nome: str, url: str | None = None, timeout: float = 120.0):
         self.nome = nome
         self.url = (url or os.environ.get("OLLAMA_URL", "http://localhost:11434")).rstrip("/")
         self.timeout = timeout
@@ -35,7 +35,8 @@ class ClienteOllama:
             ],
             "stream": False,
             # temperatura 0 e semente fixa: respostas o mais repetíveis possível
-            "options": {"temperature": 0, "seed": 42, "num_ctx": 4096},
+            # num_predict limita o tamanho da resposta: evita a IA "disparar" texto sem parar
+            "options": {"temperature": 0, "seed": 42, "num_ctx": 4096, "num_predict": 300},
         }
         pedido = urllib.request.Request(
             f"{self.url}/api/chat",

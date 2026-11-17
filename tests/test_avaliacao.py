@@ -69,3 +69,17 @@ def test_linha_de_comando_completa_com_ia_falsa(monkeypatch, tmp_path):
     codigo = cli.main(["--assistente", "dnd", "--modelo", "falso:1b", "--saida", str(tmp_path)])
     assert codigo == 1  # a IA falsa sempre diz "não tenho": reprova nos fatos
     assert (tmp_path / "dnd__falso_1b.md").exists() and (tmp_path / "dnd__falso_1b.json").exists()
+
+
+class IAQueTrava(IAFalsa):
+    def responder(self, sistema, mensagem):
+        if "Frete?" in mensagem:
+            raise TimeoutError("timed out")
+        return super().responder(sistema, mensagem)
+
+
+def test_caso_travado_vira_falha_sem_derrubar_a_avaliacao():
+    r = avaliar(AssistenteLoja(), IAQueTrava({"Prazo de troca?": "7 dias"}), CASOS, MINIMOS)
+    assert len(r.casos) == 3
+    travado = next(c for c in r.casos if c.id == "B")
+    assert not travado.passou and travado.motivos[0].startswith("sem resposta: TimeoutError")

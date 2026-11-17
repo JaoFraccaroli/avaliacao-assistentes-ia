@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        modelo: ["qwen2.5:1.5b", "llama3.2:1b"]
+        modelo: ["qwen2.5:1.5b", "llama3.2:1b", "qwen2.5:3b"]
     # O modelo principal decide se o CI passa; o outro entra só para comparação
     continue-on-error: ${{ matrix.modelo != 'qwen2.5:1.5b' }}
     steps:
