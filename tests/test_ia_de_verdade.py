@@ -1,6 +1,6 @@
 """Avaliação com a IA de verdade (só roda com o Ollama ligado): pytest -m avaliacao
 
-O modelo vem da variável MODELO (padrão: qwen2.5:1.5b).
+O modelo vem da variável MODELO (padrão: qwen2.5:3b).
 """
 import os
 
@@ -20,7 +20,7 @@ pytestmark = [
 
 @pytest.mark.parametrize("nome", ["loja", "dnd"])
 def test_assistente_atinge_os_minimos(nome):
-    modelo = ClienteOllama(os.environ.get("MODELO", "qwen2.5:1.5b"))
+    modelo = ClienteOllama(os.environ.get("MODELO", "qwen2.5:3b"))
     r = avaliar(criar_assistente(nome), modelo, carregar_casos(RAIZ / "casos" / f"{nome}.csv"), minimos(nome))
     reprovadas = [f"{c.descricao}: {c.taxa:.0%} (mínimo {c.minimo:.0%})" for c in r.categorias if not c.aprovada]
     assert not reprovadas, "; ".join(reprovadas)

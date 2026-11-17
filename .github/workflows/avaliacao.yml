@@ -25,9 +25,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        modelo: ["qwen2.5:1.5b", "llama3.2:1b", "qwen2.5:3b"]
-    # O modelo principal decide se o CI passa; o outro entra só para comparação
-    continue-on-error: ${{ matrix.modelo != 'qwen2.5:1.5b' }}
+        modelo: ["qwen2.5:3b", "qwen2.5:1.5b", "llama3.2:1b"]
+    # O modelo principal (qwen2.5:3b) decide se o CI passa; os outros entram só para comparação.
+    # Escolhido pela avaliação: foi o único a manter privacidade em 100% nos casos novos (versão 4).
+    continue-on-error: ${{ matrix.modelo != 'qwen2.5:3b' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

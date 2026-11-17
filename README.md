@@ -26,11 +26,18 @@ Por isso, aqui não existe "passou ou falhou" em um caso isolado. Cada assistent
 
 Os mínimos ficam em [`limites.toml`](limites.toml). Modelos pequenos erram bastante, então os mínimos são realistas (60% a 75%). A exceção é a **privacidade, que exige 100%**: vazar dado de cliente nunca é aceitável.
 
-## A proteção de dados não depende da IA
+## Proteções feitas por código, não pela IA
 
-A decisão de segurança mais importante do projeto: **os dados dos pedidos nunca são entregues à IA de uma vez**. O próprio código ([`assistentes/loja/assistente.py`](assistentes/loja/assistente.py)) confere se o **número do pedido e o CPF do titular** combinam e só então coloca **aquele único pedido** na conversa. Mesmo que alguém engane o modelo, ele não tem como revelar o que nunca recebeu.
+A IA erra. Por isso, os pontos críticos são decididos **pelo código, antes de a IA ser consultada**. Cada proteção nasceu de uma falha real encontrada na avaliação:
 
-Os testes provam isso sem precisar de IA: para **todas** as perguntas de teste, a mensagem enviada ao modelo nunca contém nome ou CPF de clientes, e nunca contém mais de um pedido ([`tests/test_seguranca_da_loja.py`](tests/test_seguranca_da_loja.py)).
+| Proteção | Falha que motivou |
+|---|---|
+| Os dados dos pedidos **nunca** vão para a IA de uma vez. O código confere **número do pedido e CPF do titular** e só então entrega **aquele único pedido** | Princípio de projeto: a IA não pode vazar o que nunca recebeu |
+| Pedido citado sem confirmação: **o código responde** pedindo número e CPF | Na versão 1, a IA **inventava a situação** de pedidos que nunca viu ("aguardando pagamento") |
+| Pergunta sem nenhum trecho relacionado nos documentos: **recusa fixa** | A IA respondia quem ganhou a Copa e escrevia redações |
+| D&D: magia, truque ou condição citada que não existe nos documentos, ou outro sistema de RPG: **o código responde** | A IA inventava o dano de magias inexistentes |
+
+Os testes provam essas proteções sem precisar de IA. Para **todas** as perguntas de teste, a mensagem enviada ao modelo nunca contém nome ou CPF de clientes nem mais de um pedido ([`tests/test_seguranca_da_loja.py`](tests/test_seguranca_da_loja.py)). Pedidos sem confirmação são respondidos sem consultar a IA, o que o teste verifica com uma "IA" que falha se for chamada.
 
 ## Como funciona
 
@@ -47,7 +54,7 @@ proteção de pedidos (código) ──► dados de 1 pedido, se verificado ┘  
 | [`motor/`](motor) | Busca BM25 (sem bibliotecas externas), cliente do Ollama, verificação das respostas, métricas, relatório e comparação entre modelos |
 | [`assistentes/loja/`](assistentes/loja) | Instruções, documentos da loja fictícia, pedidos fictícios e a proteção de pedidos |
 | [`assistentes/dnd/`](assistentes/dnd) | Instruções e o resumo adaptado do SRD 5.1 (magias, condições e regras) |
-| [`casos/`](casos) | Os casos de teste em planilhas: `loja.csv` (33 casos) e `dnd.csv` (26 casos) |
+| [`casos/`](casos) | Os casos de teste em planilhas: `loja.csv` (37 casos) e `dnd.csv` (32 casos) |
 | [`limites.toml`](limites.toml) | Mínimo exigido por critério |
 
 Um caso de teste é uma linha de planilha:
@@ -63,8 +70,8 @@ L01;fatos;Qual o prazo para trocar um celular que comprei?;7 dias|sete dias && n
 
 | Camada | O que testa | IA usada | Tempo |
 |---|---|---|---|
-| **Testes rápidos** ([`tests/`](tests), mais de 80) | Busca, verificação, métricas, relatório, proteção de pedidos, e se **a busca entrega à IA o trecho com a resposta** de cada pergunta | IA **falsa**, com respostas prontas | segundos |
-| **Avaliação** (`pytest -m avaliacao` ou `python -m motor.avaliar`) | Os 59 casos com o modelo de verdade | Ollama | minutos |
+| **Testes rápidos** ([`tests/`](tests), mais de 110) | Busca, verificação, métricas, relatório, proteção de pedidos, e se **a busca entrega à IA o trecho com a resposta** de cada pergunta | IA **falsa**, com respostas prontas | segundos |
+| **Avaliação** (`pytest -m avaliacao` ou `python -m motor.avaliar`) | Os 69 casos com o modelo de verdade | Ollama | minutos |
 
 O teste "a busca entrega o trecho com a resposta" separa dois tipos de falha. Se ele falha, o problema está na **busca** (nem um modelo perfeito acertaria). Se ele passa e a avaliação falha, o problema está no **modelo** ou nas **instruções**.
 
@@ -72,14 +79,14 @@ O teste "a busca entrega o trecho com a resposta" separa dois tipos de falha. Se
 
 1. Instale o [Ollama](https://ollama.com/download) e baixe um modelo pequeno:
    ```bash
-   ollama pull qwen2.5:1.5b
+   ollama pull qwen2.5:3b
    ```
 2. Rode (precisa de Python 3.11 ou mais novo):
    ```bash
    pip install -r requirements.txt
    python -m pytest                                              # testes rápidos
-   python -m motor.avaliar --assistente loja --modelo qwen2.5:1.5b
-   python -m motor.avaliar --assistente dnd  --modelo qwen2.5:1.5b
+   python -m motor.avaliar --assistente loja --modelo qwen2.5:3b
+   python -m motor.avaliar --assistente dnd  --modelo qwen2.5:3b
    python -m motor.comparar relatorios                          # tabela comparando modelos
    ```
 
@@ -90,14 +97,43 @@ Os relatórios (Markdown e JSON, com cada resposta e o motivo de cada reprovaç�
 A cada push:
 
 1. os **testes rápidos** rodam;
-2. a **avaliação** roda com dois modelos, `qwen2.5:1.5b` (principal, decide se o CI passa) e `llama3.2:1b` (para comparação);
+2. a **avaliação** roda com três modelos: `qwen2.5:3b` (principal, decide se o CI passa), `qwen2.5:1.5b` e `llama3.2:1b` (para comparação);
 3. uma **tabela de comparação** entre os modelos aparece no resumo da execução.
 
 Se alguém trocar o modelo, mudar as instruções ou mexer nos documentos e a qualidade cair abaixo do mínimo, **o CI fica vermelho**. É o teste de regressão da IA.
 
 ## Resultados
 
-_A tabela com os resultados da primeira avaliação completa entra aqui._
+Versão atual (v4), com 69 casos:
+
+| Modelo | Loja | D&D | Privacidade | Tempo por resposta | Resultado |
+|---|---|---|---|---|---|
+| **qwen2.5:3b** (principal) | **95%** | **94%** | **100%** | ~9 s | ✅ aprovado |
+| qwen2.5:1.5b | 92% | 81% | 83% | ~2 s | ❌ inventou dados de uma cliente |
+| llama3.2:1b | 70% | 47% | 83% | ~3 s | ❌ recusa até o que está no documento |
+
+### Como chegamos aqui (histórico das versões)
+
+Acerto geral do `qwen2.5:1.5b`, o modelo que serviu de referência durante as melhorias:
+
+| Versão | O que mudou | Loja | D&D | O que aprendemos |
+|---|---|---|---|---|
+| v1 | Base, com o verificador corrigido com respostas reais | 76% | 65% | Acerta fatos (86%/94%), mas **inventa** pedidos, magias e regras e responde fora do assunto |
+| v2 | Proteções por código **e** um lembrete com frase pronta ("Não encontrei essa informação.") no fim da mensagem | 67% ⬇ | 73% | **Piorou.** O modelo passou a copiar a frase pronta até quando a resposta estava no documento (fatos da loja: 86% para 36%). Além disso, foram duas mudanças de uma vez, o que impediu saber qual delas causou o quê |
+| v3 | **Só** as proteções por código (lembrete removido) | **94%** | 73% | As proteções resolveram privacidade (100%) e assunto na loja. No D&D, a IA ainda inventava magias e aceitava regras falsas |
+| v4 | Proteções do D&D por código, regra de "premissa falsa" e **10 casos novos** | 92% | 81% | Os casos novos, escritos **depois** das proteções, mostraram que elas **não generalizam totalmente**: a IA inventou o dano de "Chuva de Gelo" (pergunta sem a palavra "magia") e afirmou que "a Juliana fez 2 pedidos" sem ter recebido dado algum |
+
+**Decisão tomada com base nos dados:** o `qwen2.5:1.5b` não consegue manter privacidade em 100% nos casos novos. Em vez de baixar a exigência, o modelo principal passou a ser o `qwen2.5:3b`, que cumpre todos os mínimos. O custo é ser cerca de 4 vezes mais lento.
+
+### Lições
+
+- **O verificador também erra.** Várias respostas corretas ("Não, a loja não faz desbloqueio") eram reprovadas. Cada uma virou um teste de regressão em [`tests/test_verificacao.py`](tests/test_verificacao.py), com a resposta real e o modelo que a gerou.
+- **Mudar uma coisa por vez.** Na v2, duas mudanças juntas esconderam que uma ajudava e a outra atrapalhava.
+- **Frases prontas viram atalho** para modelos pequenos.
+- **Cuidado ao "decorar a prova".** Proteções criadas olhando os casos que falharam deixam o resultado parecer melhor do que é. Casos novos, escritos depois, mostram o resultado real.
+- **O que é crítico vai para o código.** Instrução no prompt é um pedido; código é uma garantia.
+
+Ainda falham (em todos os modelos): premissa falsa sutil, como "Mísseis Mágicos erra às vezes?", em que a IA mistura com a regra do 1 natural, e magias citadas sem a palavra "magia".
 
 ## Créditos e licença do conteúdo de D&D
 
