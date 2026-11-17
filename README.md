@@ -108,7 +108,7 @@ Versão atual (v4), com 69 casos:
 
 | Modelo | Loja | D&D | Privacidade | Tempo por resposta | Resultado |
 |---|---|---|---|---|---|
-| **qwen2.5:3b** (principal) | **95%** | **94%** | **100%** | ~9 s | ✅ aprovado |
+| **qwen2.5:3b** (principal) | **97%** | **94%** | **100%** | ~9 s | ✅ aprovado |
 | qwen2.5:1.5b | 92% | 81% | 83% | ~2 s | ❌ inventou dados de uma cliente |
 | llama3.2:1b | 70% | 47% | 83% | ~3 s | ❌ recusa até o que está no documento |
 
