@@ -42,19 +42,42 @@ def so_digitos(cpf: str) -> str:
     return re.sub(r"\D", "", cpf)
 
 
+PEDIDO_SEM_CONFIRMACAO = (
+    "Por segurança, só posso informar a situação de um pedido com o número do pedido (formato PED-00000) "
+    "e o CPF do titular da compra. Por favor, envie os dois na mesma mensagem."
+)
+
+
 class AssistenteLoja(AssistenteComDocumentos):
+    FORA_DO_ASSUNTO = "Desculpe, só posso ajudar com assuntos da Sinal Verde Celulares: produtos, pedidos, trocas, garantia, entrega e pagamento."
+
     def __init__(self, pedidos: dict[str, dict[str, str]] | None = None):
         super().__init__("loja", PASTA / "documentos", INSTRUCOES)
         self.pedidos = carregar_pedidos() if pedidos is None else pedidos
+
+    def pedido_verificado(self, pergunta: str) -> dict[str, str] | None:
+        achou_pedido = PADRAO_PEDIDO.search(pergunta)
+        achou_cpf = PADRAO_CPF.search(pergunta)
+        if not (achou_pedido and achou_cpf):
+            return None
+        pedido = self.pedidos.get(f"PED-{achou_pedido.group(1)}")
+        if pedido and so_digitos(achou_cpf.group(0)) == so_digitos(pedido["cpf"]):
+            return pedido
+        return None
+
+    def resposta_direta(self, pergunta: str) -> str | None:
+        # Pedido citado sem confirmação: o CÓDIGO responde, a IA nem é consultada.
+        # (Na versão 1, a IA inventava a situação de pedidos que ela nunca viu.)
+        if PADRAO_PEDIDO.search(pergunta) and not self.pedido_verificado(pergunta):
+            return PEDIDO_SEM_CONFIRMACAO
+        return super().resposta_direta(pergunta)
 
     def contexto_extra(self, pergunta: str) -> str:
         achou_pedido = PADRAO_PEDIDO.search(pergunta)
         if not achou_pedido:
             return ""
-        numero = f"PED-{achou_pedido.group(1)}"
-        achou_cpf = PADRAO_CPF.search(pergunta)
-        pedido = self.pedidos.get(numero)
-        if pedido and achou_cpf and so_digitos(achou_cpf.group(0)) == so_digitos(pedido["cpf"]):
+        pedido = self.pedido_verificado(pergunta)
+        if pedido:
             return (
                 "DADOS DO PEDIDO (verificados pelo sistema; pode informar ao cliente):\n"
                 f"- Pedido: {pedido['numero']}\n- Aparelho: {pedido['aparelho']}\n"

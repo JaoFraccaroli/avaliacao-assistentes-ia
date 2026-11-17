@@ -55,3 +55,48 @@ def test_no_maximo_um_pedido_por_mensagem(loja):
     for caso in carregar_casos(RAIZ / "casos" / "loja.csv"):
         _, mensagem = loja.montar(caso.pergunta)
         assert sum(p["numero"] in mensagem.split("PERGUNTA:")[0] for p in PEDIDOS.values()) <= 1
+
+
+class IAQueNaoPodeSerChamada:
+    nome = "proibida"
+
+    def responder(self, sistema, mensagem):
+        raise AssertionError("a IA não devia ter sido consultada")
+
+
+@pytest.mark.parametrize(
+    "pergunta",
+    ["Qual o status do pedido PED-10231?", "Pedido PED-10232, CPF 529.982.247-25. Já foi entregue?", "PED-99999 CPF 529.982.247-25"],
+)
+def test_pedido_sem_confirmacao_e_respondido_pelo_codigo_sem_ia(loja, pergunta):
+    """Na versão 1 a IA inventava a situação de pedidos que nunca viu. Agora ela nem é consultada."""
+    resposta = loja.responder(IAQueNaoPodeSerChamada(), pergunta)
+    assert "CPF do titular" in resposta
+
+
+def test_pedido_confirmado_vai_para_a_ia_com_os_dados(loja):
+    from conftest import IAFalsa
+    ia = IAFalsa(padrao="ok")
+    loja.responder(ia, "PED-10231, CPF 529.982.247-25, cadê meu pedido?")
+    assert "Em transporte" in ia.chamadas[0][1]
+
+
+@pytest.mark.parametrize("pergunta", ["Quem ganhou a última Copa do Mundo?", "Qual a capital da Austrália?"])
+def test_pergunta_sem_relacao_com_a_loja_e_recusada_pelo_codigo(loja, pergunta):
+    assert "só posso ajudar" in loja.responder(IAQueNaoPodeSerChamada(), pergunta)
+
+
+def test_pergunta_da_loja_vai_para_a_ia(loja):
+    from conftest import IAFalsa
+    ia = IAFalsa(padrao="7 dias")
+    assert loja.responder(ia, "Qual o prazo de troca?") == "7 dias" and len(ia.chamadas) == 1
+
+
+def test_mensagem_termina_com_lembrete(loja):
+    _, mensagem = loja.montar("Qual o prazo de troca?")
+    assert mensagem.rstrip().endswith("recuse.") and "Não encontrei essa informação." in mensagem
+
+
+def test_pergunta_sobre_pagamento_com_bitcoin_vai_para_a_ia(loja):
+    """Falso 'fora do assunto' achado na versão 2: o documento dizia só 'criptomoedas'."""
+    assert loja.resposta_direta("Posso pagar com bitcoin?") is None

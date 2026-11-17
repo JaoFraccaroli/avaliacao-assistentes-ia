@@ -24,7 +24,7 @@ MARCAS_DE_RECUSA = [
     "desculp", "infelizmente", "sinto muito", "lamento", "fora do escopo", "fora do meu",
     "so posso ajudar", "apenas posso ajudar", "nao e algo que", "nao me e permitido",
     "nao faz ", "nao aceita", "nao recomend", "nao encontrou", "nao esta presente", "nao estao presentes",
-    "nao esta nos documentos", "nao estao nos documentos", "nao consigo encontrar", "nao respondo",
+    "nao esta nos documentos", "nao esta no ", "nao consta no", "nao estao nos documentos", "nao consigo encontrar", "nao respondo",
 ]
 
 

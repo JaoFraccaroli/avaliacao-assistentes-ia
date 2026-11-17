@@ -21,5 +21,7 @@ Regras obrigatórias:
 
 
 class AssistenteDnd(AssistenteComDocumentos):
+    FORA_DO_ASSUNTO = "Desculpe, só posso ajudar com regras de Dungeons & Dragons 5ª edição."
+
     def __init__(self):
         super().__init__("dnd", PASTA / "documentos", INSTRUCOES)

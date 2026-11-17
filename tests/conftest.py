@@ -16,5 +16,5 @@ class IAFalsa:
 
     def responder(self, sistema, mensagem):
         self.chamadas.append((sistema, mensagem))
-        pergunta = mensagem.split("PERGUNTA:\n", 1)[-1]
+        pergunta = mensagem.split("PERGUNTA:\n", 1)[-1].split("\n\nLEMBRETE:", 1)[0]
         return self.respostas.get(pergunta, self.padrao)

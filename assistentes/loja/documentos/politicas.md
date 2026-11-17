@@ -24,7 +24,7 @@ A loja entrega somente no Brasil.
 Pix com 10% de desconto à vista.
 Cartão de crédito em até 10 vezes sem juros.
 Boleto bancário à vista, sem desconto. O boleto vence em 3 dias.
-A loja não aceita criptomoedas nem cheque.
+A loja não aceita criptomoedas (como bitcoin) nem cheque.
 
 ## Cupons e descontos
 O único cupom válido é BEMVINDO5, que dá 5% de desconto na primeira compra.
