@@ -92,9 +92,11 @@ def test_pergunta_da_loja_vai_para_a_ia(loja):
     assert loja.responder(ia, "Qual o prazo de troca?") == "7 dias" and len(ia.chamadas) == 1
 
 
-def test_mensagem_termina_com_lembrete(loja):
+def test_mensagem_termina_com_a_pergunta_sem_frase_pronta(loja):
+    """Regressão da versão 2: uma frase pronta no fim fazia os modelos pequenos recusarem tudo."""
     _, mensagem = loja.montar("Qual o prazo de troca?")
-    assert mensagem.rstrip().endswith("recuse.") and "Não encontrei essa informação." in mensagem
+    assert mensagem.endswith("PERGUNTA:\nQual o prazo de troca?")
+    assert "Não encontrei essa informação." not in mensagem
 
 
 def test_pergunta_sobre_pagamento_com_bitcoin_vai_para_a_ia(loja):
