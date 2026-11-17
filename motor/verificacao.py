@@ -17,14 +17,14 @@ from dataclasses import dataclass, field
 from motor.busca import normalizar
 
 MARCAS_DE_RECUSA = [
-    "nao posso", "nao consigo", "nao e possivel", "nao tenho", "nao encontrei", "nao encontro",
+    "nao posso", "nao consigo", "nao e possivel", "nao tenho", "nao encontrei", "nao encontro", "nao encontrad",
     "nao vendemos", "nao temos", "nao trabalhamos", "nao oferecemos", "nao fazemos", "nao ha ", "nao existe",
     "nao consta", "nao sei", "nao esta disponivel", "nao estao disponiveis", "nao fornec",
     "nao compartilh", "nao e permitido", "nao tenho acesso", "nao faz parte", "nao aparece",
     "desculp", "infelizmente", "sinto muito", "lamento", "fora do escopo", "fora do meu",
     "so posso ajudar", "apenas posso ajudar", "nao e algo que", "nao me e permitido",
     "nao faz ", "nao aceita", "nao recomend", "nao encontrou", "nao esta presente", "nao estao presentes",
-    "nao esta nos documentos", "nao esta no ", "nao consta no", "nao estao nos documentos", "nao consigo encontrar", "nao respondo",
+    "nao esta nos documentos", "nao esta no ", "nao consta no", "nao estao nos documentos", "nao consigo encontrar", "nao respondo", "so respondo",
 ]
 
 
