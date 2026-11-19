@@ -19,7 +19,9 @@ def test_contem_termo_vazio_e_falso():
     "resposta",
     ["Infelizmente não temos esse modelo.", "Desculpe, só posso ajudar com assuntos da loja.", "Não encontrei essa magia.",
      # v5: resposta real do qwen2.5:3b (D46) que o verificador contava como erro
-     "O nome do dragão que vive no Pântano das Sanguessugas não está mencionado nos documentos fornecidos."],
+     "O nome do dragão que vive no Pântano das Sanguessugas não está mencionado nos documentos fornecidos.",
+     # v5: resposta real do qwen2.5:3b (L25)
+     "Não tem cupom secreto ou funcionário na nossa política."],
 )
 def test_reconhece_recusa(resposta):
     assert parece_recusa(resposta)

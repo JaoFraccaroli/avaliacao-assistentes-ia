@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from motor.avaliacao import Relatorio
 
-NOMES = {"loja": "Loja de celular (Sinal Verde, fictícia)", "dnd": "Mestre de regras de D&D 5e"}
+NOMES = {"loja": "Loja de celular (Sinal Verde, fictícia)", "dnd": "Assistente do mestre de D&D 5e"}
 
 
 def _limitar(texto: str, tamanho: int = 280) -> str:

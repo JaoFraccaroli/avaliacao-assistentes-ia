@@ -128,13 +128,15 @@ Se alguém trocar o modelo, mudar as instruções ou mexer nos documentos e a qu
 
 ## Resultados
 
-Versão atual (v4), com 69 casos:
+Versão atual (v5), com 87 casos (37 da loja e 50 do D&D):
 
 | Modelo | Loja | D&D | Privacidade | Tempo por resposta | Resultado |
 |---|---|---|---|---|---|
-| **qwen2.5:3b** (principal) | **97%** | **94%** | **100%** | ~9 s | ✅ aprovado |
-| qwen2.5:1.5b | 92% | 81% | 83% | ~2 s | ❌ inventou dados de uma cliente |
-| llama3.2:1b | 70% | 47% | 83% | ~3 s | ❌ recusa até o que está no documento |
+| **qwen2.5:3b** (principal) | **95%** | **88%** | **100%** | ~8 s | ✅ aprovado |
+| qwen2.5:1.5b | 92% | 72% | 83% | ~4 s | ❌ inventou dados de uma cliente |
+| llama3.2:1b | 70% | 46% | 83% | ~4 s | ❌ recusa até o que está no documento |
+
+A nota do D&D caiu de 94% (v4) para 88% porque a prova ficou mais difícil: os documentos passaram de 27 para mais de 150 trechos e entraram 18 casos novos (classes, monstros, preparação de sessão, cenário e pedidos de criação). Com mais documentos, a busca tem mais trechos "parecidos" para confundir o modelo.
 
 ### Como chegamos aqui (histórico das versões)
 
@@ -146,6 +148,7 @@ Acerto geral do `qwen2.5:1.5b`, o modelo que serviu de referência durante as me
 | v2 | Proteções por código **e** um lembrete com frase pronta ("Não encontrei essa informação.") no fim da mensagem | 67% ⬇ | 73% | **Piorou.** O modelo passou a copiar a frase pronta até quando a resposta estava no documento (fatos da loja: 86% para 36%). Além disso, foram duas mudanças de uma vez, o que impediu saber qual delas causou o quê |
 | v3 | **Só** as proteções por código (lembrete removido) | **94%** | 73% | As proteções resolveram privacidade (100%) e assunto na loja. No D&D, a IA ainda inventava magias e aceitava regras falsas |
 | v4 | Proteções do D&D por código, regra de "premissa falsa" e **10 casos novos** | 92% | 81% | Os casos novos, escritos **depois** das proteções, mostraram que elas **não generalizam totalmente**: a IA inventou o dano de "Chuva de Gelo" (pergunta sem a palavra "magia") e afirmou que "a Juliana fez 2 pedidos" sem ter recebido dado algum |
+| v5 | D&D com as regras de 2024 (SRD 5.2), guia do mestre, cenário original, "só consulta" no código e **18 casos novos** | 92% | 72% | A primeira rodada do `qwen2.5:3b` **reprovou** (80%): o filtro de "pedido de criação" barrava "Quantos dardos **cria** Mísseis Mágicos?", e trechos com vários números juntos (escala de truque, tabela de XP) confundiram o modelo. Corrigido o filtro (só vale no começo do pedido), com teste de regressão, e cada número passou a ficar numa frase própria: 88% |
 
 **Decisão tomada com base nos dados:** o `qwen2.5:1.5b` não consegue manter privacidade em 100% nos casos novos. Em vez de baixar a exigência, o modelo principal passou a ser o `qwen2.5:3b`, que cumpre todos os mínimos. O custo é ser cerca de 4 vezes mais lento.
 
@@ -156,8 +159,10 @@ Acerto geral do `qwen2.5:1.5b`, o modelo que serviu de referência durante as me
 - **Frases prontas viram atalho** para modelos pequenos.
 - **Cuidado ao "decorar a prova".** Proteções criadas olhando os casos que falharam deixam o resultado parecer melhor do que é. Casos novos, escritos depois, mostram o resultado real.
 - **O que é crítico vai para o código.** Instrução no prompt é um pedido; código é uma garantia.
+- **Uma proteção também pode causar erro.** Na v5, o filtro de "pedido de criação" barrou uma pergunta normal de regra. Proteção também precisa de teste de falso positivo.
+- **Mais documentos não é só ganho.** A base do D&D cresceu de 27 para mais de 150 trechos: o assistente ficou bem mais útil, mas a busca e o modelo pequeno passaram a ter mais chance de se confundir. O teste mostra quanto custou.
 
-Ainda falham (em todos os modelos): premissa falsa sutil, como "Mísseis Mágicos erra às vezes?", em que a IA mistura com a regra do 1 natural, e magias citadas sem a palavra "magia".
+Ainda falham com o `qwen2.5:3b`: magias e monstros fora dos documentos citados sem a palavra "magia" ("Chuva de Gelo", "dragão vermelho adulto": o modelo usa o que aprendeu no treino), perguntas fora do assunto que compartilham uma palavra com os documentos ("capital" da Austrália e a "antiga capital" do cenário) e outro sistema de RPG que não está na lista do código (Dungeon World).
 
 ## Créditos e licença do conteúdo de D&D
 
