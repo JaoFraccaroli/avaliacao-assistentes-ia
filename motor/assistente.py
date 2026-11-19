@@ -31,11 +31,20 @@ class AssistenteComDocumentos:
     def trechos(self, pergunta: str) -> list[Trecho]:
         return self.buscador.buscar(pergunta, self.quantidade_trechos)
 
-    def montar(self, pergunta: str) -> tuple[str, str]:
-        partes = [f"[{t.fonte} - {t.titulo}]\n{t.texto}" for t in self.trechos(pergunta)]
+    def montar(self, pergunta: str, consulta: str | None = None, historico: str = "") -> tuple[str, str]:
+        """`consulta` é o texto usado para buscar e conferir (na conversa, pode incluir a
+        mensagem anterior); `historico` é o resumo da conversa até agora."""
+        consulta = consulta or pergunta
+        partes = [f"[{t.fonte} - {t.titulo}]\n{t.texto}" for t in self.trechos(consulta)]
         documentos = "\n\n".join(partes) if partes else "(nenhum trecho encontrado sobre isso)"
-        extra = self.contexto_extra(pergunta)
-        mensagem = f"DOCUMENTOS:\n{documentos}\n\n"
+        extra = self.contexto_extra(consulta)
+        mensagem = ""
+        if historico:
+            mensagem += (
+                "CONVERSA ATÉ AGORA (use só para entender a que a pergunta se refere; "
+                f"as informações da resposta vêm dos DOCUMENTOS):\n{historico}\n\n"
+            )
+        mensagem += f"DOCUMENTOS:\n{documentos}\n\n"
         if extra:
             mensagem += f"{extra}\n\n"
         # Versão 2 tinha um lembrete aqui com uma frase pronta ("Não encontrei essa informação.").
@@ -44,9 +53,11 @@ class AssistenteComDocumentos:
         mensagem += f"PERGUNTA:\n{pergunta}"
         return self.instrucoes, mensagem
 
-    def responder(self, modelo: ModeloDeLinguagem, pergunta: str) -> str:
-        direta = self.resposta_direta(pergunta)
+    def responder(self, modelo: ModeloDeLinguagem, pergunta: str,
+                  consulta: str | None = None, historico: str = "") -> str:
+        consulta = consulta or pergunta
+        direta = self.resposta_direta(consulta)
         if direta is not None:
             return direta
-        sistema, mensagem = self.montar(pergunta)
+        sistema, mensagem = self.montar(pergunta, consulta, historico)
         return modelo.responder(sistema, mensagem)

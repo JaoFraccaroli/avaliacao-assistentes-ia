@@ -5,6 +5,7 @@ os trechos mais parecidos vão para a IA como contexto.
 """
 from __future__ import annotations
 
+import difflib
 import math
 import re
 import unicodedata
@@ -20,6 +21,15 @@ PALAVRAS_VAZIAS = set(
 )
 
 
+# Abreviações comuns de quem digita rápido no celular
+ABREVIACOES = {
+    "vc": "voce", "vcs": "voces", "pq": "porque", "q": "que", "oq": "o que", "tb": "tambem",
+    "tbm": "tambem", "qnto": "quanto", "qto": "quanto", "qnt": "quanto", "qnta": "quanta",
+    "qdo": "quando", "qndo": "quando", "msg": "mensagem", "cel": "celular", "n": "nao",
+    "naum": "nao", "eh": "e", "td": "tudo", "hj": "hoje", "obg": "obrigado", "pfv": "por favor",
+}
+
+
 def normalizar(texto: str) -> str:
     """minúsculas e sem acentos: 'Garantia' e 'garantía' viram a mesma palavra"""
     sem_acento = unicodedata.normalize("NFKD", texto.lower())
@@ -32,8 +42,12 @@ def radical(palavra: str, tamanho: int = 5) -> str:
     return palavra if palavra.isdigit() else palavra[:tamanho]
 
 
+def expandir_abreviacoes(texto: str) -> str:
+    return " ".join(ABREVIACOES.get(p, p) for p in re.findall(r"[a-z0-9]+", normalizar(texto)))
+
+
 def palavras(texto: str) -> list[str]:
-    return [p for p in re.findall(r"[a-z0-9]+", normalizar(texto)) if p not in PALAVRAS_VAZIAS and len(p) > 1]
+    return [p for p in re.findall(r"[a-z0-9]+", expandir_abreviacoes(texto)) if p not in PALAVRAS_VAZIAS and len(p) > 1]
 
 
 def radicais(texto: str) -> list[str]:
@@ -77,6 +91,24 @@ class Buscador:
         n = len(trechos)
         frequencia_doc = Counter(p for c in self._termos for p in c)
         self._idf = {p: math.log(1 + (n - f + 0.5) / (f + 0.5)) for p, f in frequencia_doc.items()}
+        # todas as palavras inteiras dos documentos, para corrigir erros de digitação
+        self._vocabulario = sorted({p for t in trechos for p in palavras(f"{t.titulo} {t.texto}")})
+        self._conhecidas = set(self._vocabulario)
+
+    def corrigir(self, pergunta: str) -> str:
+        """Troca palavras com erro de digitação pela palavra mais parecida dos documentos:
+        'garamtia' vira 'garantia'. Só para palavras de 5+ letras, bem parecidas (85%) e com a
+        mesma primeira letra, para não transformar um assunto que não tem nada a ver em algo
+        dos documentos ('franca' não pode virar 'faca')."""
+        corrigidas = []
+        for p in palavras(pergunta):
+            if len(p) >= 5 and not p.isdigit() and p not in self._conhecidas:
+                candidatas = [v for v in self._vocabulario if v[0] == p[0]]
+                parecida = difflib.get_close_matches(p, candidatas, n=1, cutoff=0.85)
+                if parecida:
+                    p = parecida[0]
+            corrigidas.append(p)
+        return " ".join(corrigidas)
 
     @classmethod
     def da_pasta(cls, pasta: Path) -> "Buscador":
@@ -86,8 +118,9 @@ class Buscador:
         return cls(trechos)
 
     def pontuar(self, pergunta: str) -> list[float]:
-        termos = radicais(pergunta)
-        pergunta_normalizada = " ".join(re.findall(r"[a-z0-9]+", normalizar(pergunta)))
+        corrigida = self.corrigir(pergunta)
+        termos = radicais(corrigida)
+        pergunta_normalizada = f"{expandir_abreviacoes(pergunta)} {corrigida}"
         notas = []
         for contagem, tamanho, nome in zip(self._termos, self._tamanhos, self._nomes):
             nota = 0.0

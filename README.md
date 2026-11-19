@@ -70,7 +70,7 @@ L01;fatos;Qual o prazo para trocar um celular que comprei?;7 dias|sete dias && n
 
 | Camada | O que testa | IA usada | Tempo |
 |---|---|---|---|
-| **Testes rápidos** ([`tests/`](tests), mais de 110) | Busca, verificação, métricas, relatório, proteção de pedidos, e se **a busca entrega à IA o trecho com a resposta** de cada pergunta | IA **falsa**, com respostas prontas | segundos |
+| **Testes rápidos** ([`tests/`](tests), mais de 120) | Busca, verificação, métricas, relatório, proteção de pedidos, e se **a busca entrega à IA o trecho com a resposta** de cada pergunta | IA **falsa**, com respostas prontas | segundos |
 | **Avaliação** (`pytest -m avaliacao` ou `python -m motor.avaliar`) | Os 69 casos com o modelo de verdade | Ollama | minutos |
 
 O teste "a busca entrega o trecho com a resposta" separa dois tipos de falha. Se ele falha, o problema está na **busca** (nem um modelo perfeito acertaria). Se ele passa e a avaliação falha, o problema está no **modelo** ou nas **instruções**.
@@ -91,6 +91,26 @@ O teste "a busca entrega o trecho com a resposta" separa dois tipos de falha. Se
    ```
 
 Os relatórios (Markdown e JSON, com cada resposta e o motivo de cada reprovação) ficam em `relatorios/`.
+
+## Conversar com os assistentes
+
+A avaliação é a "prova" do atendente; aqui você é o cliente:
+
+```bash
+python -m motor.conversar --assistente loja
+python -m motor.conversar --assistente dnd
+```
+
+Embaixo de cada resposta aparecem os **trechos dos documentos** que foram para a IA, para você ver de onde a resposta saiu. Comandos: `/limpar` (começa do zero), `/trechos` (mostra ou esconde os trechos) e `/sair`.
+
+Um cliente de verdade não escreve como nos casos de teste, então a conversa entende mensagens "meio ruins":
+
+| Mensagem | O que acontece |
+|---|---|
+| `qnto tempo de garamtia` | Abreviação (`qnto` → quanto) e erro de digitação (`garamtia` → garantia) são corrigidos **só na busca**, usando as palavras que existem nos documentos |
+| `e quanto de dano?` (depois de perguntar da Bola de Fogo) | Pergunta de continuação: a mensagem anterior entra junto na busca, e as 2 últimas trocas vão para a IA entender o contexto |
+| `quero ver o pedido PED-10231` e depois `meu cpf é ...` | Número do pedido e CPF em mensagens separadas são juntados, e o **código** continua conferindo se correspondem |
+| `qual a capital da franca` | A correção é cautelosa (85% de semelhança e mesma primeira letra), para não transformar assunto de fora em assunto da loja (`franca` não vira `faca`) |
 
 ## No GitHub Actions
 
