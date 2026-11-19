@@ -31,4 +31,4 @@ def test_contexto_enviado_contem_a_resposta(nome, caso):
 
 def test_creditos_do_srd_no_readme():
     readme = (RAIZ / "README.md").read_text(encoding="utf-8")
-    assert "System Reference Document 5.1" in readme and "CC-BY-4.0" in readme.replace(" ", "-")
+    assert "System Reference Document 5.2" in readme and "CC-BY-4.0" in readme.replace(" ", "-")

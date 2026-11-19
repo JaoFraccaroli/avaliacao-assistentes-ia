@@ -7,7 +7,7 @@ Projeto de **qualidade de software aplicada a IA generativa**. Dois assistentes 
 | Assistente | O que faz |
 |---|---|
 | **Loja de celular** (Sinal Verde, loja **fictícia**) | Atendimento: políticas de troca, garantia, frete, pagamento, catálogo, dicas de Android e consulta de pedidos |
-| **Mestre de regras de D&D 5e** | Tira dúvidas de regras, magias e condições com base no SRD 5.1 (licença aberta) |
+| **Assistente do mestre de D&D 5e** | Regras de 2024 (SRD 5.2, licença aberta): combate, criação de personagem, classes, magias, condições, equipamento e monstros; preparação de sessão; e o cenário original Vale de Brumacinza. **Só consulta, não cria**: quem cria é o mestre |
 
 ## Por que testar IA é diferente
 
@@ -36,6 +36,7 @@ A IA erra. Por isso, os pontos críticos são decididos **pelo código, antes de
 | Pedido citado sem confirmação: **o código responde** pedindo número e CPF | Na versão 1, a IA **inventava a situação** de pedidos que nunca viu ("aguardando pagamento") |
 | Pergunta sem nenhum trecho relacionado nos documentos: **recusa fixa** | A IA respondia quem ganhou a Copa e escrevia redações |
 | D&D: magia, truque ou condição citada que não existe nos documentos, ou outro sistema de RPG: **o código responde** | A IA inventava o dano de magias inexistentes |
+| D&D: pedido para **criar** conteúdo ("crie um NPC", "invente uma aventura"): **o código responde** e mostra o que existe nos documentos | Decisão de projeto (v5): a criatividade começa no humano; o programa complementa, nunca o contrário |
 
 Os testes provam essas proteções sem precisar de IA. Para **todas** as perguntas de teste, a mensagem enviada ao modelo nunca contém nome ou CPF de clientes nem mais de um pedido ([`tests/test_seguranca_da_loja.py`](tests/test_seguranca_da_loja.py)). Pedidos sem confirmação são respondidos sem consultar a IA, o que o teste verifica com uma "IA" que falha se for chamada.
 
@@ -53,8 +54,9 @@ proteção de pedidos (código) ──► dados de 1 pedido, se verificado ┘  
 |---|---|
 | [`motor/`](motor) | Busca BM25 (sem bibliotecas externas), cliente do Ollama, verificação das respostas, métricas, relatório e comparação entre modelos |
 | [`assistentes/loja/`](assistentes/loja) | Instruções, documentos da loja fictícia, pedidos fictícios e a proteção de pedidos |
-| [`assistentes/dnd/`](assistentes/dnd) | Instruções e o resumo adaptado do SRD 5.1 (magias, condições e regras) |
-| [`casos/`](casos) | Os casos de teste em planilhas: `loja.csv` (37 casos) e `dnd.csv` (32 casos) |
+| [`assistentes/dnd/`](assistentes/dnd) | Instruções, resumo traduzido do SRD 5.2 (regras, condições, magias, personagem, classes, equipamento, monstros), guia de preparação de sessão e o cenário Vale de Brumacinza (texto original) |
+| `assistentes/dnd/documentos_locais/` | **Fica só no seu computador** (o Git ignora): o seu livro em PDF e as anotações da sua campanha. Só o modo de conversa lê esta pasta |
+| [`casos/`](casos) | Os casos de teste em planilhas: `loja.csv` (37 casos) e `dnd.csv` (50 casos) |
 | [`limites.toml`](limites.toml) | Mínimo exigido por critério |
 
 Um caso de teste é uma linha de planilha:
@@ -71,7 +73,7 @@ L01;fatos;Qual o prazo para trocar um celular que comprei?;7 dias|sete dias && n
 | Camada | O que testa | IA usada | Tempo |
 |---|---|---|---|
 | **Testes rápidos** ([`tests/`](tests), mais de 120) | Busca, verificação, métricas, relatório, proteção de pedidos, e se **a busca entrega à IA o trecho com a resposta** de cada pergunta | IA **falsa**, com respostas prontas | segundos |
-| **Avaliação** (`pytest -m avaliacao` ou `python -m motor.avaliar`) | Os 69 casos com o modelo de verdade | Ollama | minutos |
+| **Avaliação** (`pytest -m avaliacao` ou `python -m motor.avaliar`) | Os 87 casos com o modelo de verdade | Ollama | minutos |
 
 O teste "a busca entrega o trecho com a resposta" separa dois tipos de falha. Se ele falha, o problema está na **busca** (nem um modelo perfeito acertaria). Se ele passa e a avaliação falha, o problema está no **modelo** ou nas **instruções**.
 
@@ -100,6 +102,8 @@ A avaliação é a "prova" do atendente; aqui você é o cliente:
 python -m motor.conversar --assistente loja
 python -m motor.conversar --assistente dnd
 ```
+
+Para o D&D, coloque o seu livro em PDF e as anotações da campanha em `assistentes/dnd/documentos_locais/` (veja o `LEIA-ME.md` lá dentro; para PDF, `pip install pypdf` uma vez). Eles ficam só no seu computador. Para conversar sem eles: `--sem-locais`.
 
 Embaixo de cada resposta aparecem os **trechos dos documentos** que foram para a IA, para você ver de onde a resposta saiu. Comandos: `/limpar` (começa do zero), `/trechos` (mostra ou esconde os trechos) e `/sair`.
 
@@ -157,8 +161,10 @@ Ainda falham (em todos os modelos): premissa falsa sutil, como "Mísseis Mágico
 
 ## Créditos e licença do conteúdo de D&D
 
-Os documentos de D&D são um **resumo traduzido e adaptado** do System Reference Document 5.1.
+Os documentos de regras de D&D são um **resumo traduzido e adaptado** do System Reference Document 5.2 (regras de 2024). O guia de preparação de sessão (exceto a parte de dificuldade de encontros, que vem do SRD) e o cenário Vale de Brumacinza são **texto original** deste projeto. Nenhum trecho de livro comercial está no repositório: o livro do usuário, se houver, fica na pasta local ignorada pelo Git.
 
-This work includes material taken from the System Reference Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License (CC-BY 4.0) available at https://creativecommons.org/licenses/by/4.0/legalcode.
+This work includes material from the System Reference Document 5.2 ("SRD 5.2") by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2 is licensed under the Creative Commons Attribution 4.0 International License (CC-BY-4.0), available at https://creativecommons.org/licenses/by/4.0/legalcode.
+
+A leitura do SRD 5.2 usou a conversão para Markdown de Seth Henderson (springbov), disponível em https://github.com/springbov/dndsrd5.2_markdown, também sob CC-BY-4.0.
 
 A loja Sinal Verde, a marca Orion, os produtos, os preços, os clientes e os pedidos são **fictícios**.

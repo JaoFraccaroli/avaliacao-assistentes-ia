@@ -18,7 +18,8 @@ from motor.conversa import Conversa
 
 BOAS_VINDAS = {
     "loja": "Sinal Verde Celulares (loja fictícia). Pergunte sobre produtos, frete, troca, garantia ou o seu pedido.",
-    "dnd": "Mestre de regras de D&D 5ª edição. Pergunte sobre magias, condições e regras.",
+    "dnd": "Assistente do mestre de D&D 5ª edição (regras de 2024). Pergunte sobre regras, combate, "
+           "personagens, magias, monstros, preparação de sessão ou o cenário Vale de Brumacinza.",
 }
 
 
@@ -28,13 +29,20 @@ def main(argumentos: list[str] | None = None, entrada=input) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--assistente", choices=["loja", "dnd"], required=True)
     p.add_argument("--modelo", default="qwen2.5:3b", help="nome do modelo no Ollama")
+    p.add_argument("--sem-locais", action="store_true",
+                   help="ignora a pasta documentos_locais (usa só os documentos do repositório)")
     a = p.parse_args(argumentos)
 
     if not ollama_disponivel():
         print("Ollama não está rodando. Abra o aplicativo do Ollama (ou rode: ollama serve).", file=sys.stderr)
         return 2
 
-    assistente = criar_assistente(a.assistente)
+    assistente = criar_assistente(a.assistente, usar_documentos_locais=not a.sem_locais)
+    for aviso in getattr(assistente, "avisos", []):
+        print(f"Aviso: {aviso}")
+    if getattr(assistente, "trechos_locais", None):
+        fontes = sorted({t.fonte for t in assistente.trechos_locais})
+        print(f"Documentos locais carregados: {', '.join(fontes)} ({len(assistente.trechos_locais)} trechos)")
     conversa = Conversa(assistente, ClienteOllama(a.modelo))
     mostrar_trechos = True
     print(f"\n{BOAS_VINDAS[a.assistente]}\nModelo: {a.modelo}  |  /limpar  /trechos  /sair\n")

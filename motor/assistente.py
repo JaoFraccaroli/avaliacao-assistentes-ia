@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from motor.busca import Buscador, Trecho
+from motor.documentos_locais import carregar as carregar_locais
 from motor.cliente_llm import ModeloDeLinguagem
 
 
@@ -12,11 +13,15 @@ class AssistenteComDocumentos:
     # (a busca não encontra nenhum trecho): nem chega a perguntar à IA.
     FORA_DO_ASSUNTO = "Desculpe, só posso ajudar com assuntos relacionados aos documentos que conheço."
 
-    def __init__(self, nome: str, pasta_documentos: Path, instrucoes: str, quantidade_trechos: int = 3):
+    def __init__(self, nome: str, pasta_documentos: Path, instrucoes: str, quantidade_trechos: int = 3,
+                 pasta_local: Path | None = None):
         self.nome = nome
         self.instrucoes = instrucoes.strip()
         self.quantidade_trechos = quantidade_trechos
-        self.buscador = Buscador.da_pasta(pasta_documentos)
+        # documentos_locais: só no computador de quem usa (ex.: o livro em PDF), fora do Git
+        self.trechos_locais, self.avisos = carregar_locais(pasta_local) if pasta_local else ([], [])
+        publicos = Buscador.da_pasta(pasta_documentos).trechos
+        self.buscador = Buscador(publicos + self.trechos_locais)
 
     def resposta_direta(self, pergunta: str) -> str | None:
         """Respostas decididas pelo CÓDIGO, sem consultar a IA. None = deixa a IA responder."""

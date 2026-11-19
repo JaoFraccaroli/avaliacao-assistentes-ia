@@ -17,7 +17,8 @@ PALAVRAS_VAZIAS = set(
     """a o as os um uma uns umas de do da dos das no na nos nas em por para pra com sem
     e ou que qual quais quanto quantos quanta quantas como quando onde se ao aos à às é
     ser são foi tem ter há eu voce você vocês meu minha seu sua isso esse essa este esta
-    me te lhe mais menos muito pode posso tenho the of""".split()
+    me te lhe mais menos muito pode posso tenho the of
+    funciona funcionam acontece serve""".split()
 )
 
 

@@ -3,3 +3,7 @@ __pycache__/
 relatorios/
 *.pyc
 .venv/
+
+# Documentos só do seu computador (livros, anotações de campanha)
+assistentes/*/documentos_locais/*
+!assistentes/*/documentos_locais/LEIA-ME.md

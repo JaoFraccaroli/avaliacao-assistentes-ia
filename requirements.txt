@@ -1,2 +1,4 @@
 # O motor usa só a biblioteca padrão do Python (3.11+). Só os testes precisam do pytest.
 pytest>=8
+# Opcional, só para ler livros em PDF na pasta documentos_locais (modo de conversa):
+# pypdf>=5

@@ -21,13 +21,14 @@ from motor.relatorio import em_markdown
 RAIZ = Path(__file__).resolve().parent.parent
 
 
-def criar_assistente(nome: str):
+def criar_assistente(nome: str, usar_documentos_locais: bool = False):
+    """A avaliação usa só os documentos públicos (resultado igual em qualquer máquina)."""
     if nome == "loja":
         from assistentes.loja.assistente import AssistenteLoja
         return AssistenteLoja()
     if nome == "dnd":
         from assistentes.dnd.assistente import AssistenteDnd
-        return AssistenteDnd()
+        return AssistenteDnd(usar_documentos_locais)
     raise ValueError(f"assistente desconhecido: {nome}")
 
 

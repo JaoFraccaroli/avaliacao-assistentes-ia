@@ -25,6 +25,7 @@ MARCAS_DE_RECUSA = [
     "so posso ajudar", "apenas posso ajudar", "nao e algo que", "nao me e permitido",
     "nao faz ", "nao aceita", "nao recomend", "nao encontrou", "nao esta presente", "nao estao presentes",
     "nao esta nos documentos", "nao esta no ", "nao consta no", "nao estao nos documentos", "nao consigo encontrar", "nao respondo", "so respondo", "nao e valido", "nao esta validado", "nao e um cupom valido",
+    "so consulto", "apenas consulto", "nao crio", "nao posso criar",
 ]
 
 

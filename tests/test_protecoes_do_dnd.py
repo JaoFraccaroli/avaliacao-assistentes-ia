@@ -14,7 +14,7 @@ def dnd():
     [
         ("Quanto dano causa a magia Tempestade de Meteoros Arco-Íris?", "Tempestade de Meteoros Arco-Íris"),
         ("Qual o dano da magia Desintegrar?", "Desintegrar"),
-        ("Quais são as regras da condição Exaustão?", "Exaustão"),
+        ("Quais são as regras da condição Congelado?", "Congelado"),
     ],
 )
 def test_nome_que_nao_esta_nos_documentos_e_barrado(dnd, pergunta, nome):
@@ -44,3 +44,27 @@ def test_outros_sistemas_sao_recusados_pelo_codigo(dnd, pergunta):
 
 def test_instrucoes_mandam_corrigir_premissa_falsa(dnd):
     assert "diga que não é assim" in dnd.instrucoes
+
+
+@pytest.mark.parametrize("pergunta", [
+    "Crie um NPC taverneiro novo para a minha campanha.",
+    "Invente uma aventura curta para o meu grupo de nível 1.",
+    "me dá ideias de encontro pra sessão de sábado",
+    "escreva a história do meu personagem",
+])
+def test_pedido_de_criacao_e_respondido_pelo_codigo_sem_ia(dnd, pergunta):
+    from assistentes.dnd.assistente import NAO_CRIO
+    from tests.conftest import IAFalsa
+    ia = IAFalsa()
+    assert dnd.responder(ia, pergunta) == NAO_CRIO
+    assert ia.chamadas == []
+
+
+@pytest.mark.parametrize("pergunta", [
+    "Como crio um personagem?",
+    "Quais os passos para criar um PdM rápido?",
+    "Como funciona a magia Bola de Fogo?",
+])
+def test_pergunta_sobre_criacao_continua_indo_para_a_busca(dnd, pergunta):
+    from assistentes.dnd.assistente import pede_criacao
+    assert not pede_criacao(pergunta)
