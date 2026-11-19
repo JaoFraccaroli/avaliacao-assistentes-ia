@@ -20,9 +20,11 @@ PADRAO_NOME = re.compile(r"\b(?:magia|condi[cç][aã]o|truque)\s+(?:de\s+|do\s+|
 # Pedido para o assistente CRIAR algo ("crie um NPC", "invente uma aventura"): decisão do
 # projeto (v5) é que quem cria é o mestre; o assistente só consulta e confere os documentos.
 PADRAO_CRIACAO = re.compile(
-    r"\b(crie|cria|invente|inventa|gere|gera|escreva|escreve|imagine|imagina|sugira|sugere|bole)\b"
-    r"|\bme\s+d[aeê]\s+(uma?\s+)?ideias?\b",
-    re.IGNORECASE,
+    # só no COMEÇO do pedido: "Quantos dardos cria Mísseis Mágicos?" não é pedido de criação
+    r"^(?:por favor,?\s+)?(?:me\s+)?(?:(?:voce|vc)\s+)?(?:pode\s+|poderia\s+|consegue\s+)?(?:me\s+)?"
+    r"(?:crie|cria|criar|invente|inventa|inventar|gere|gera|gerar|escreva|escreve|escrever|imagine|imagina|"
+    r"sugira|sugere|sugerir|bole|bolar|monte|monta|montar)\b"
+    r"|\bme\s+d[ae]\s+(?:uma?\s+|algumas?\s+)?ideias?\b",
 )
 NAO_CRIO = (
     "Eu não crio conteúdo novo: quem cria é você, e eu consulto os documentos para ajudar. "
@@ -33,8 +35,6 @@ NAO_CRIO = (
 
 def pede_criacao(pergunta: str) -> bool:
     texto = normalizar(pergunta).strip()
-    if texto.startswith(("como ", "posso ", "da para ", "e possivel ")):
-        return False  # "como crio um personagem?" é pergunta sobre regra, não pedido de criação
     return bool(PADRAO_CRIACAO.search(texto))
 
 

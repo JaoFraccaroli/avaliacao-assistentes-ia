@@ -104,7 +104,7 @@ No acerto crítico (20 natural no ataque), role os dados de dano do ataque duas 
 Um monstro morre ao chegar a 0 PV (o mestre pode tratar um monstro importante como personagem). Um personagem morre na hora se o dano que sobrar depois de chegar a 0 for igual ou maior que o seu máximo de PV (dano massivo). Senão, fica Inconsciente e começa a fazer testes contra a morte. Para nocautear em vez de matar, ao reduzir alguém a 0 com ataque corpo a corpo você pode deixá-lo com 1 PV e Inconsciente.
 
 ## Testes contra a morte
-No início de cada turno com 0 pontos de vida, role 1d20: 10 ou mais é sucesso, abaixo de 10 é falha. Com três sucessos você fica estável; com três falhas, morre. Não precisam ser seguidos. Tirar 1 natural conta como duas falhas. Tirar 20 natural faz você recuperar 1 ponto de vida. Sofrer dano com 0 PV conta uma falha (duas se for crítico). Estabilizar alguém: ação Ajudar e teste de Sabedoria (Medicina) CD 10. Estável, sem cura, recupera 1 PV depois de 1d4 horas.
+No início de cada turno com 0 pontos de vida, role 1d20: 10 ou mais é sucesso, abaixo de 10 é falha. Com três sucessos você fica estável; com três falhas, morre. Não precisam ser seguidos. Se tirar 1 natural no d20: conta como duas falhas. Se tirar 20 natural no d20: você recupera 1 ponto de vida. Sofrer dano com 0 PV conta uma falha (duas se for crítico). Estabilizar alguém: ação Ajudar e teste de Sabedoria (Medicina) CD 10. Estável, sem cura, recupera 1 PV depois de 1d4 horas.
 
 ## Pontos de vida temporários
 São perdidos antes dos PV normais e duram até acabarem ou até um descanso longo. Não se somam: se receber novos, você escolhe ficar com os antigos ou com os novos. Não contam como cura e não acordam quem está com 0 PV.

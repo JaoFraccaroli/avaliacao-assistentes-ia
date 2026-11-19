@@ -51,6 +51,7 @@ def test_instrucoes_mandam_corrigir_premissa_falsa(dnd):
     "Invente uma aventura curta para o meu grupo de nível 1.",
     "me dá ideias de encontro pra sessão de sábado",
     "escreva a história do meu personagem",
+    "Você pode criar um vilão pra mim?",
 ])
 def test_pedido_de_criacao_e_respondido_pelo_codigo_sem_ia(dnd, pergunta):
     from assistentes.dnd.assistente import NAO_CRIO
@@ -64,6 +65,8 @@ def test_pedido_de_criacao_e_respondido_pelo_codigo_sem_ia(dnd, pergunta):
     "Como crio um personagem?",
     "Quais os passos para criar um PdM rápido?",
     "Como funciona a magia Bola de Fogo?",
+    "Quantos dardos cria Mísseis Mágicos no 1º nível?",  # v5: o 1º filtro barrava esta (verbo "cria")
+    "O que a magia gera de dano?",
 ])
 def test_pergunta_sobre_criacao_continua_indo_para_a_busca(dnd, pergunta):
     from assistentes.dnd.assistente import pede_criacao

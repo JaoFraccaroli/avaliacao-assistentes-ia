@@ -11,7 +11,7 @@ Bárbaro: 12 + modificador de Constituição. Guerreiro, Paladino e Patrulheiro:
 Bônus de ataque corpo a corpo = modificador de Força + bônus de proficiência. Bônus de ataque à distância = modificador de Destreza + bônus de proficiência. No dano, some o mesmo modificador usado no ataque. Armas com a propriedade Acuidade (Finesse) podem usar Força ou Destreza.
 
 ## Experiência e níveis
-XP necessária para cada nível: 2º = 300; 3º = 900; 4º = 2.700; 5º = 6.500; 6º = 14.000; 7º = 23.000; 8º = 34.000; 9º = 48.000; 10º = 64.000; 11º = 85.000; 12º = 100.000; 13º = 120.000; 14º = 140.000; 15º = 165.000; 16º = 195.000; 17º = 225.000; 18º = 265.000; 19º = 305.000; 20º = 355.000. A subclasse é escolhida no 3º nível. Ao subir de nível: ganhe PV e Dado de Vida, anote as características novas e atualize o bônus de proficiência.
+Experiência (XP) total necessária para chegar a cada nível: para chegar ao nível 2, 300 XP; ao nível 3, 900 XP; ao nível 4, 2.700 XP; ao nível 5, 6.500 XP; 6º = 14.000; 7º = 23.000; 8º = 34.000; 9º = 48.000; 10º = 64.000; 11º = 85.000; 12º = 100.000; 13º = 120.000; 14º = 140.000; 15º = 165.000; 16º = 195.000; 17º = 225.000; 18º = 265.000; 19º = 305.000; 20º = 355.000. A subclasse é escolhida no 3º nível. Ao subir de nível: ganhe PV e Dado de Vida, anote as características novas e atualize o bônus de proficiência.
 
 ## Idiomas
 Todo personagem sabe Comum e mais dois idiomas comuns: Linguagem de Sinais Comum, Dracônico, Anão, Élfico, Gigante, Gnômico, Goblin, Halfling ou Orc. Idiomas raros: Abissal, Celestial, Dialeto Subterrâneo (Deep Speech), Druídico, Infernal, Primordial, Silvestre, Gíria de Ladrão (Thieves' Cant) e Subcomum.

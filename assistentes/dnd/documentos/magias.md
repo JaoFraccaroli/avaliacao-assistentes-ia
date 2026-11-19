@@ -62,7 +62,7 @@ Magia de 1º nível, evocação (Clérigo). Uma ação. Alcance: 36 metros. Comp
 Magia de 1º nível, adivinhação (Bardo, Clérigo, Druida, Paladino, Patrulheiro, Feiticeiro, Bruxo, Mago). Uma ação ou ritual. Alcance: pessoal. Duração: concentração, até 10 minutos. Você sente efeitos mágicos a até 9 metros; com a ação Magia, vê uma aura fraca em criaturas e objetos mágicos e descobre a escola da magia. É bloqueada por 30 cm de pedra, terra ou madeira, 2,5 cm de metal ou uma folha fina de chumbo.
 
 ## Raio de Fogo (Fire Bolt)
-Truque de evocação (Feiticeiro, Mago). Uma ação. Alcance: 36 metros. Componentes: V, S. Faça um ataque de magia à distância: se acertar, o alvo sofre 1d10 de dano de fogo. Objetos inflamáveis atingidos pegam fogo. O dano aumenta com o nível do personagem: 2d10 no 5º nível, 3d10 no 11º e 4d10 no 17º.
+Truque de evocação (Feiticeiro, Mago). Uma ação. Alcance: 36 metros. Componentes: V, S. Faça um ataque de magia à distância: se acertar, o alvo sofre 1d10 de dano de fogo. Objetos inflamáveis atingidos pegam fogo. Dano conforme o nível do personagem: níveis 1 a 4 = 1d10; níveis 5 a 10 = 2d10; níveis 11 a 16 = 3d10; nível 17 ou mais = 4d10.
 
 ## Raio de Gelo (Ray of Frost)
 Truque de evocação (Feiticeiro, Mago). Uma ação. Alcance: 18 metros. Componentes: V, S. Faça um ataque de magia à distância: se acertar, o alvo sofre 1d8 de dano de frio e seu deslocamento diminui 3 metros até o início do seu próximo turno. O dano aumenta para 2d8 no 5º nível, 3d8 no 11º e 4d8 no 17º.

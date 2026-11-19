@@ -17,7 +17,9 @@ def test_contem_termo_vazio_e_falso():
 
 @pytest.mark.parametrize(
     "resposta",
-    ["Infelizmente não temos esse modelo.", "Desculpe, só posso ajudar com assuntos da loja.", "Não encontrei essa magia."],
+    ["Infelizmente não temos esse modelo.", "Desculpe, só posso ajudar com assuntos da loja.", "Não encontrei essa magia.",
+     # v5: resposta real do qwen2.5:3b (D46) que o verificador contava como erro
+     "O nome do dragão que vive no Pântano das Sanguessugas não está mencionado nos documentos fornecidos."],
 )
 def test_reconhece_recusa(resposta):
     assert parece_recusa(resposta)
